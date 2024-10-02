@@ -1,0 +1,131 @@
+<div id="bmi-bmr-calculator" style="background-color: white; color: black; padding: 20px; border-radius: 10px;">
+    <h2>Kalkulator BMI i BMR</h2>
+    <form id="bmi-bmr-form">
+        <div style="margin-bottom: 10px;">
+            <label for="weight">Težina (kg):</label><br>
+            <input type="text" id="weight" name="weight" required style="background-color: white; color: black; border: 1px solid black; padding: 5px; width: 100%;">
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label for="height">Visina (cm):</label><br>
+            <input type="text" id="height" name="height" required style="background-color: white; color: black; border: 1px solid black; padding: 5px; width: 100%;">
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label for="age">Godine:</label><br>
+            <input type="text" id="age" name="age" required style="background-color: white; color: black; border: 1px solid black; padding: 5px; width: 100%;">
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label for="gender">Pol:</label><br>
+            <select id="gender" name="gender" required style="background-color: white; color: black; border: 1px solid black; padding: 5px; width: 100%;">
+                <option value="male">Muški</option>
+                <option value="female">Ženski</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label for="activity-level">Nivo aktivnosti:</label><br>
+            <select id="activity-level" name="activity-level" required style="background-color: white; color: black; border: 1px solid black; padding: 5px; width: 100%;">
+                <option value="sedentary">Sedenje (malo ili nimalo vežbanje)</option>
+                <option value="lightly-active">Lagana aktivnost (lako vežbanje/sport 1-3 dana/nedeljno)</option>
+                <option value="moderately-active">Umerna aktivnost (umereno vežbanje/sport 3-5 dana/nedeljno)</option>
+                <option value="very-active">Veoma aktivni (intenzivno vežbanje/sport 6-7 dana/nedeljno)</option>
+                <option value="extra-active">Veoma veoma aktivni (veoma intenzivno vežbanje/sport i fizički posao ili duplo vežbanje)</option>
+            </select>
+        </div>
+
+        <input type="button" value="Izračunaj BMI & BMR" onclick="calculateBMIandBMR()" style="background-color: green; color: white; border: none; padding: 10px; margin-top: 10px; width: 100%;">
+    </form>
+
+    <div id="bmi-result" style="margin-top: 20px;"></div>
+    <div id="bmr-result" style="margin-top: 10px;"></div>
+    <div id="bmr-goals" style="margin-top: 10px;"></div>
+    <div id="macronutrient-recommendations" style="margin-top: 10px;"></div>
+    <div id="thank-you-message" style="margin-top: 10px;"></div>
+</div>
+
+<script>
+    function calculateBMIandBMR() {
+        var weight = parseFloat(document.getElementById('weight').value);
+        var height = parseFloat(document.getElementById('height').value);
+        var age = parseInt(document.getElementById('age').value);
+        var gender = document.getElementById('gender').value;
+        var activityLevel = document.getElementById('activity-level').value;
+
+        // Provera validnosti unosa
+        if (isNaN(weight) || weight <= 0 || isNaN(height) || height <= 0 || isNaN(age) || age <= 0) {
+            alert("Molimo unesite validne brojeve za težinu, visinu i godine.");
+            return;
+        }
+
+        // Calculate BMI
+        var bmi = weight / ((height / 100) * (height / 100));
+
+        // BMI Categories
+        var bmiCategory;
+        if (gender === 'male') {
+            if (bmi > 24) {
+                bmiCategory = 'Gojaznost';
+            } else if (bmi < 22) {
+                bmiCategory = 'Mrsavost';
+            } else {
+                bmiCategory = 'Normalno';
+            }
+        } else {
+            if (bmi > 21) {
+                bmiCategory = 'Gojaznost';
+            } else if (bmi < 19) {
+                bmiCategory = 'Mrsavost';
+            } else {
+                bmiCategory = 'Normalno';
+            }
+        }
+
+        // Calculate BMR
+        var bmr;
+        if (gender === 'male') {
+            bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+        } else {
+            bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+        }
+
+        // Faktor aktivnosti
+        var activityMultiplier;
+        switch (activityLevel) {
+            case 'sedentary':
+                activityMultiplier = 1.2;
+                break;
+            case 'lightly-active':
+                activityMultiplier = 1.375;
+                break;
+            case 'moderately-active':
+                activityMultiplier = 1.55;
+                break;
+            case 'very-active':
+                activityMultiplier = 1.725;
+                break;
+            case 'extra-active':
+                activityMultiplier = 1.9;
+                break;
+        }
+        var totalCalories = bmr * activityMultiplier;
+
+        // Calculate Macronutrient Values based on Maintenance Calories (100% BMR)
+        var proteinGrams = totalCalories * 0.3 / 4; // 30% of calories from protein
+        var carbGrams = totalCalories * 0.5 / 4; // 50% of calories from carbohydrates
+        var fatGrams = totalCalories * 0.2 / 9; // 20% of calories from fats
+
+        var bmiResult = 'Vaš BMI je: ' + bmi.toFixed(2) + ' (' + bmiCategory + ')';
+        var bmrResult = 'Vaš BMR je: ' + bmr.toFixed(2) + ' kalorija/dan';
+        var totalCaloriesResult = 'Vaše dnevne kalorijske potrebe (u zavisnosti od nivoa aktivnosti): ' + totalCalories.toFixed(2) + ' kalorija/dan';
+        var bmrGoalsResult = 'Za održavanje težine (100%): ' + totalCalories.toFixed(2) + ' kalorija/dan<br>Za gubljenje težine (80%): ' + (totalCalories * 0.8).toFixed(2) + ' kalorija/dan<br>Za brzo gubljenje težine (65%): ' + (totalCalories * 0.65).toFixed(2) + ' kalorija/dan';
+        var macronutrientRecommendations = 'Preporučene vrednosti makronutrijenata:<br>Proteini: ' + proteinGrams.toFixed(2) + ' grama<br>Ugljeni hidrati: ' + carbGrams.toFixed(2) + ' grama<br>Masti: ' + fatGrams.toFixed(2) + ' grama';
+
+        // Display results
+        document.getElementById('bmi-result').innerHTML = bmiResult;
+        document.getElementById('bmr-result').innerHTML = bmrResult;
+        document.getElementById('bmr-goals').innerHTML = bmrGoalsResult;
+        document.getElementById('macronutrient-recommendations').innerHTML = macronutrientRecommendations;
+    }
+</script>
